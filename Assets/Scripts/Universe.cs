@@ -54,7 +54,7 @@ public class Universe : MonoBehaviour
         );
         Vector3 sphereEdge = position.normalized * radius;
         // Make sure the sprites are nice and far away!
-        GameObject star = Instantiate(backgroundStar, sphereEdge * 2 + position*10, new Quaternion(), background);
+        GameObject star = Instantiate(backgroundStar, sphereEdge * 2 + position*3, new Quaternion(), background);
         star.transform.LookAt(transform);
         backgroundStars.Add(star);
     }
@@ -65,7 +65,7 @@ public class Universe : MonoBehaviour
         if (Input.GetMouseButtonDown(0)) {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, 300f)) {
+            if (Physics.Raycast(ray, out hit, 3000f)) {
                 Star star = hit.transform.GetComponent<Star>();
                 if (star) {
                     lr.GoToStar(star.gameObject);

@@ -12,6 +12,7 @@ public class LookAround : MonoBehaviour
     private Quaternion lastRotation, lookDirection;
 
     public float maxDist, minDist;
+    private float dist;
     private Camera cam;
     private float fov;
     public AnimationCurve fovSlide;
@@ -20,6 +21,7 @@ public class LookAround : MonoBehaviour
         cam = FindObjectOfType<Camera>();
         cam.transform.localPosition = new Vector3(minDist, 0f);
         fov = cam.fieldOfView;
+        dist = minDist;
     }
 
     public void GoToStar(GameObject star) {
@@ -36,11 +38,18 @@ public class LookAround : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
-        if (Input.GetMouseButton(1)) {
-            // We're rotating
-            cam.transform.RotateAround(transform.position, cam.transform.right, Input.GetAxis("Mouse Y"));
-            cam.transform.RotateAround(transform.position, cam.transform.up, Input.GetAxis("Mouse X"));
+        dist -= Input.mouseScrollDelta.y;
+        dist = Mathf.Clamp(dist, minDist, maxDist);
+        cam.transform.localPosition = cam.transform.localPosition.normalized * dist;
+        if (Input.GetMouseButtonDown(1)) {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
+        if (Input.GetMouseButtonUp(1)) {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
         if (floatingTime > 0f) {
             floatingTime -= Time.deltaTime;
             if (floatingTime < 0f) {
@@ -60,6 +69,10 @@ public class LookAround : MonoBehaviour
                 cam.transform.LookAt(currentStar);
                 cam.fieldOfView = fov;
             }
+        } else if (Input.GetMouseButton(1)) {
+            // We're rotating
+            cam.transform.RotateAround(transform.position, cam.transform.right, Input.GetAxis("Mouse Y"));
+            cam.transform.RotateAround(transform.position, cam.transform.up, Input.GetAxis("Mouse X"));
         }
     }
 }
