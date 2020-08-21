@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class LookAround : MonoBehaviour
 {
@@ -17,11 +18,15 @@ public class LookAround : MonoBehaviour
     private float fov;
     public AnimationCurve fovSlide;
 
+    private MotionBlur mb = null;
+
     private void Start() {
         cam = FindObjectOfType<Camera>();
         cam.transform.localPosition = new Vector3(minDist, 0f);
         fov = cam.fieldOfView;
         dist = minDist;
+        PostProcessVolume p = cam.GetComponent<PostProcessVolume>();
+        p.profile.TryGetSettings(out mb);
     }
 
     public void GoToStar(GameObject star) {
@@ -34,6 +39,7 @@ public class LookAround : MonoBehaviour
         lookDirection = Quaternion.FromToRotation(cam.transform.forward, currentStar.position - lastPos);
         floatingTime = floatTime;
         distBetween = Vector3.Distance(lastPos, currentStar.position);
+        mb.enabled.value = true;
     }
 
     // Update is called once per frame
@@ -68,6 +74,7 @@ public class LookAround : MonoBehaviour
             if (floatingTime == 0f) {
                 cam.transform.LookAt(currentStar);
                 cam.fieldOfView = fov;
+                mb.enabled.value = false;
             }
         } else if (Input.GetMouseButton(1)) {
             // We're rotating
