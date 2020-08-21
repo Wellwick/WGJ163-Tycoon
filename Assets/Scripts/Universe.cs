@@ -54,7 +54,8 @@ public class Universe : MonoBehaviour
         );
         Vector3 sphereEdge = position.normalized * radius;
         // Make sure the sprites are nice and far away!
-        GameObject star = Instantiate(backgroundStar, sphereEdge * 2 + position, new Quaternion(), background);
+        GameObject star = Instantiate(backgroundStar, sphereEdge * 2 + position*10, new Quaternion(), background);
+        star.transform.LookAt(transform);
         backgroundStars.Add(star);
     }
 

@@ -6,25 +6,32 @@ public class LookAround : MonoBehaviour
 {
     public float floatTime;
     public AnimationCurve moveCurve;
-    private float floatingTime;
+    private float floatingTime, distBetween;
     public Transform currentStar;
     private Vector3 lastPos;
     private Quaternion lastRotation, lookDirection;
 
     public float maxDist, minDist;
     private Camera cam;
+    private float fov;
+    public AnimationCurve fovSlide;
 
     private void Start() {
         cam = FindObjectOfType<Camera>();
         cam.transform.localPosition = new Vector3(minDist, 0f);
+        fov = cam.fieldOfView;
     }
 
     public void GoToStar(GameObject star) {
+        // We don't wanna go back to the same star!
+        if (star.transform == currentStar)
+            return;
         lastPos = transform.position;
         lastRotation = cam.transform.rotation;
         currentStar = star.transform;
         lookDirection = Quaternion.FromToRotation(cam.transform.forward, currentStar.position - lastPos);
         floatingTime = floatTime;
+        distBetween = Vector3.Distance(lastPos, currentStar.position);
     }
 
     // Update is called once per frame
@@ -44,8 +51,14 @@ public class LookAround : MonoBehaviour
             cam.transform.LookAt(currentStar);
             Quaternion future = cam.transform.rotation;
             cam.transform.rotation = Quaternion.Lerp(future, lastRotation, completed);
+            cam.fieldOfView = fov * fovSlide.Evaluate(1.0f - completed);
+            if (distBetween < 20f) {
+                float dampen = Mathf.Max(0f, (distBetween - 10f) / 10f);
+                cam.fieldOfView = Mathf.Lerp(fov, cam.fieldOfView, dampen);
+            }
             if (floatingTime == 0f) {
                 cam.transform.LookAt(currentStar);
+                cam.fieldOfView = fov;
             }
         }
     }

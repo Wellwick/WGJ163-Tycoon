@@ -11,6 +11,8 @@ public class Star : MonoBehaviour
         Color c = new Color(Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));
         m.color = c;
         m.SetColor("_EmissionColor", c);
+        float scale = Random.Range(4f / 5f, 5f / 4f);
+        transform.localScale = new Vector3(scale, scale, scale);
     }
 
     // Update is called once per frame

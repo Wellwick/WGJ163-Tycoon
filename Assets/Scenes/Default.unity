@@ -179,6 +179,39 @@ MonoBehaviour:
   currentStar: {fileID: 0}
   maxDist: 50
   minDist: 10
+  fovSlide:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0.9962128
+      outSlope: 0.9962128
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.50144047
+      value: 1.4995414
+      inSlope: -0.002878338
+      outSlope: -0.002878338
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: -1.0019695
+      outSlope: -1.0019695
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &541866476
 Transform:
   m_ObjectHideFlags: 0
@@ -229,7 +262,7 @@ MonoBehaviour:
     type: 3}
   radius: 60
   starCountTouchable: 300
-  backgroundStarMultiplier: 5
+  backgroundStarMultiplier: 10
 --- !u!4 &574683819
 Transform:
   m_ObjectHideFlags: 0
@@ -295,7 +328,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10000
   field of view: 60
   orthographic: 0
   orthographic size: 5
