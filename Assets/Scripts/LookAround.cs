@@ -20,6 +20,9 @@ public class LookAround : MonoBehaviour
 
     private MotionBlur mb = null;
 
+    public GameObject pathPrefab;
+    private Path aimPath = null;
+
     private void Start() {
         cam = FindObjectOfType<Camera>();
         cam.transform.localPosition = new Vector3(minDist, 0f);
@@ -27,6 +30,21 @@ public class LookAround : MonoBehaviour
         dist = minDist;
         PostProcessVolume p = cam.GetComponent<PostProcessVolume>();
         p.profile.TryGetSettings(out mb);
+        transform.position = new Vector3(FindObjectOfType<Universe>().radius, 0f);
+    }
+
+    public void Aim(Star star) {
+        // Don't aim at yourself, that would be silly
+        if (star == currentStar.GetComponent<Star>()) {
+            return;
+        }
+        // We may need to setup an aim, but we also might not!
+        if (aimPath == null) {
+            aimPath = GameObject.Instantiate(pathPrefab).GetComponent<Path>();
+        }
+        if (!aimPath.IsDestination(star)) {
+            aimPath.SetupPath(currentStar.GetComponent<Star>(), star, TradeItem.NONE);
+        }
     }
 
     public void GoToStar(GameObject star) {

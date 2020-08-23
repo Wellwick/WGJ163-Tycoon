@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Universe : MonoBehaviour
 {
+    public int seed;
     public GameObject starPrefab;
     public GameObject backgroundStar;
     public float radius;
@@ -18,6 +19,7 @@ public class Universe : MonoBehaviour
     private LookAround lr;
     // Start is called before the first frame update
     void Start() {
+        Random.InitState(seed);
         foreach (Transform t in transform) {
             if (t.name == "Background") {
                 background = t;
@@ -26,7 +28,12 @@ public class Universe : MonoBehaviour
 
         stars = new LinkedList<GameObject>();
         backgroundStars = new List<GameObject>();
-        for (int i = 0; i < starCountTouchable; i++) {
+
+        // First star in the centre of the universe
+        GameObject star = Instantiate(starPrefab, new Vector3(), new Quaternion());
+        stars.AddLast(star);
+
+        for (int i = 1; i < starCountTouchable; i++) {
             SpawnStar();
         }
         for (int i = 0; i < starCountTouchable*backgroundStarMultiplier; i++) {
@@ -60,17 +67,18 @@ public class Universe : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0)) {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit, 3000f)) {
-                Star star = hit.transform.GetComponent<Star>();
-                if (star) {
+    void Update() {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit, 3000f)) {
+            Star star = hit.transform.GetComponent<Star>();
+            if (star) {
+                lr.Aim(star);
+                if (Input.GetMouseButtonDown(0)) {
                     lr.GoToStar(star.gameObject);
                 }
             }
         }
+
     }
 }

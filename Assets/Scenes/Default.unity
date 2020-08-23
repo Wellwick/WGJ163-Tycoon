@@ -212,6 +212,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  pathPrefab: {fileID: 4560999921556892314, guid: 5cdbf1a4f1a21b34c9d95c59a30a6d2c,
+    type: 3}
 --- !u!4 &541866476
 Transform:
   m_ObjectHideFlags: 0
@@ -256,6 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66fe535ce19b9dc4380f9b602e31d69e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seed: 1234567890
   starPrefab: {fileID: 1953164559870225552, guid: 4771e0819f151b24c8182513a869c702,
     type: 3}
   backgroundStar: {fileID: 8547144414942301163, guid: 99bee999d8c27b6499f9e417882ec31a,
@@ -356,13 +359,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 541866476}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
 --- !u!114 &963194229
 MonoBehaviour:
   m_ObjectHideFlags: 0
