@@ -35,7 +35,7 @@ public class LookAround : MonoBehaviour
 
     public void Aim(Star star) {
         // Don't aim at yourself, that would be silly
-        if (star == currentStar.GetComponent<Star>()) {
+        if (star == currentStar.GetComponent<Star>() || floatingTime > 0f) {
             return;
         }
         // We may need to setup an aim, but we also might not!
@@ -58,6 +58,10 @@ public class LookAround : MonoBehaviour
         floatingTime = floatTime;
         distBetween = Vector3.Distance(lastPos, currentStar.position);
         mb.enabled.value = true;
+        if (aimPath != null) {
+            Destroy(aimPath.gameObject);
+            aimPath = null;
+        }
     }
 
     // Update is called once per frame

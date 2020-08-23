@@ -12,10 +12,10 @@ public enum TradeItem {
 class Trading {
 
     public static Color[] TradeColors = {
-        new Color(1f,0.2f,0.2f,1f),
-        Color.green,
-        Color.blue,
-        Color.white,
+        new Color(1f,0.2f,0.2f,0.5f),
+        new Color(0.2f,1f,0.2f,0.5f),
+        new Color(0.2f,0.2f,1f,0.5f),
+        new Color(1f,1f,1f,0.5f),
         Color.yellow,
         Color.cyan
     };
