@@ -43,6 +43,7 @@ public class LookAround : MonoBehaviour
             aimPath = GameObject.Instantiate(pathPrefab).GetComponent<Path>();
         }
         if (!aimPath.IsDestination(star)) {
+            aimPath.SetSize(0.7f);
             aimPath.SetupPath(currentStar.GetComponent<Star>(), star, TradeItem.NONE);
         }
     }

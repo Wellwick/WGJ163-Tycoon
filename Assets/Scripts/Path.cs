@@ -7,6 +7,10 @@ public class Path : MonoBehaviour {
 
     private float size = 0.5f;
 
+    public void SetSize(float size) {
+        this.size = size;
+    }
+
     public void SetupPath(Star start, Star end, TradeItem t) {
         this.start = start;
         this.end = end;
@@ -20,6 +24,7 @@ public class Path : MonoBehaviour {
             Material m = quad.GetComponent<MeshRenderer>().materials[0];
             m.color = GetColour();
             m.mainTextureScale = new Vector2(1f, scale/size);
+            m.SetColor("_EmissionColor", m.color);
         }
     }
 

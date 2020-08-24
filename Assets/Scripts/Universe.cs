@@ -12,8 +12,12 @@ public class Universe : MonoBehaviour
     public int starCountTouchable;
     public float backgroundStarMultiplier;
 
-    private LinkedList<GameObject> stars;
+    private GameObject[] stars;
     private List<GameObject> backgroundStars;
+
+    public GameObject pathPrefab;
+
+    private List<Path> paths;
 
     private Transform background;
     private LookAround lr;
@@ -26,31 +30,40 @@ public class Universe : MonoBehaviour
             }
         }
 
-        stars = new LinkedList<GameObject>();
+        stars = new GameObject[starCountTouchable];
         backgroundStars = new List<GameObject>();
 
         // First star in the centre of the universe
         GameObject star = Instantiate(starPrefab, new Vector3(), new Quaternion());
-        stars.AddLast(star);
+        stars[0] = star;
 
         for (int i = 1; i < starCountTouchable; i++) {
-            SpawnStar();
+            SpawnStar(i);
         }
         for (int i = 0; i < starCountTouchable*backgroundStarMultiplier; i++) {
             SpawnBackgroundStar();
         }
         lr = FindObjectOfType<LookAround>();
-        lr.GoToStar(stars.First.Value);
+        lr.GoToStar(stars[0]);
+        
+        for (int i = 0; i< 100; i++) {
+            Star start = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
+            Star end = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
+            if (start == end) {
+                continue;
+            }
+            SpawnPath(start, end);
+        }
     }
 
-    private void SpawnStar() {
+    private void SpawnStar(int index) {
         Vector3 position = new Vector3(
             Random.Range(-radius, radius), 
             Random.Range(-radius, radius), 
             Random.Range(-radius, radius)
         );
         GameObject star = Instantiate(starPrefab, position, new Quaternion());
-        stars.AddLast(star);
+        stars[index] = star;
     }
 
     private void SpawnBackgroundStar() {
@@ -64,6 +77,11 @@ public class Universe : MonoBehaviour
         GameObject star = Instantiate(backgroundStar, sphereEdge * 2 + position*5, new Quaternion(), background);
         star.transform.LookAt(transform);
         backgroundStars.Add(star);
+    }
+
+    private void SpawnPath(Star start, Star end) {
+        Path path = Instantiate(pathPrefab).GetComponent<Path>();
+        path.SetupPath(start, end, (TradeItem)Random.Range(1, 5));
     }
 
     // Update is called once per frame

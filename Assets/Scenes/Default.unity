@@ -212,7 +212,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  pathPrefab: {fileID: 4560999921556892314, guid: 5cdbf1a4f1a21b34c9d95c59a30a6d2c,
+  pathPrefab: {fileID: 7058514355004861101, guid: 244bcdfd2c809324ca4e9aa6fb33e4a9,
     type: 3}
 --- !u!4 &541866476
 Transform:
@@ -266,6 +266,8 @@ MonoBehaviour:
   radius: 150
   starCountTouchable: 1500
   backgroundStarMultiplier: 10
+  pathPrefab: {fileID: 7058514355004861101, guid: 244bcdfd2c809324ca4e9aa6fb33e4a9,
+    type: 3}
 --- !u!4 &574683819
 Transform:
   m_ObjectHideFlags: 0
