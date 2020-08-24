@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Star : MonoBehaviour
 {
+
+    private TradeItem tradeItem;
     // Start is called before the first frame update
     void Start()
     {
@@ -13,6 +15,7 @@ public class Star : MonoBehaviour
         m.SetColor("_EmissionColor", c);
         float scale = Random.Range(3f / 5f, 5f / 3f);
         transform.localScale = new Vector3(scale, scale, scale);
+        tradeItem = (TradeItem)Random.Range(1, 5);
     }
 
     // Update is called once per frame

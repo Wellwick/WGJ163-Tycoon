@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.UI;
 
 public class LookAround : MonoBehaviour
 {
@@ -10,11 +11,12 @@ public class LookAround : MonoBehaviour
     private float floatingTime, distBetween;
     public Transform currentStar;
     private Vector3 lastPos;
-    private Quaternion lastRotation, lookDirection;
+    private Quaternion lastRotation;
 
     public float maxDist, minDist;
-    private float dist;
+    public float dist;
     private Camera cam;
+    private Transform camParent;
     private float fov;
     public AnimationCurve fovSlide;
 
@@ -23,14 +25,30 @@ public class LookAround : MonoBehaviour
     public GameObject pathPrefab;
     private Path aimPath = null;
 
+    public Image panel;
+    private Color panelsColour;
+    public float focusTime;
+    private float currentFocusTime;
+    private bool focusSystem;
+    private Vector3 focusPos, unfocusPos;
+
     private void Start() {
+        foreach (Transform t in transform) {
+            if (t.name == "CamParent") {
+                camParent = t;
+            }
+        }
         cam = FindObjectOfType<Camera>();
-        cam.transform.localPosition = new Vector3(minDist, 0f);
         fov = cam.fieldOfView;
         dist = minDist;
+        SetDist();
         PostProcessVolume p = cam.GetComponent<PostProcessVolume>();
         p.profile.TryGetSettings(out mb);
-        transform.position = new Vector3(FindObjectOfType<Universe>().radius, 0f);
+        transform.position = new Vector3(0f, 0f, -FindObjectOfType<Universe>().radius);
+        focusSystem = false;
+        currentFocusTime = 0f;
+        focusPos = new Vector3(-2f, 0, -5f);
+        panelsColour = panel.color;
     }
 
     public void Aim(Star star) {
@@ -50,12 +68,13 @@ public class LookAround : MonoBehaviour
 
     public void GoToStar(GameObject star) {
         // We don't wanna go back to the same star!
-        if (star.transform == currentStar)
+        if (star.transform == currentStar || focusSystem) {
+            SwapFocus();
             return;
+        }
         lastPos = transform.position;
-        lastRotation = cam.transform.rotation;
+        lastRotation = camParent.transform.rotation;
         currentStar = star.transform;
-        lookDirection = Quaternion.FromToRotation(cam.transform.forward, currentStar.position - lastPos);
         floatingTime = floatTime;
         distBetween = Vector3.Distance(lastPos, currentStar.position);
         mb.enabled.value = true;
@@ -65,11 +84,38 @@ public class LookAround : MonoBehaviour
         }
     }
 
+    private void SwapFocus() {
+        focusSystem = !focusSystem;
+        currentFocusTime = focusTime;
+        if (focusSystem) {
+            unfocusPos = cam.transform.localPosition;
+        }
+    }
+
     // Update is called once per frame
     void Update() {
-        dist -= Input.mouseScrollDelta.y;
-        dist = Mathf.Clamp(dist, minDist, maxDist);
-        cam.transform.localPosition = cam.transform.localPosition.normalized * dist;
+        if (!focusSystem) {
+            UnfocusedUpdate();
+        } else {
+            FocusedUpdate();
+        }
+    }
+
+    private void UnfocusedUpdate() {
+        if (currentFocusTime > 0f) {
+            currentFocusTime -= Time.deltaTime;
+            currentFocusTime = Mathf.Clamp(currentFocusTime, 0f, focusTime);
+            float completion = moveCurve.Evaluate(currentFocusTime / focusTime);
+            cam.transform.localPosition = Vector3.Lerp(unfocusPos, focusPos, completion);
+            float panelTransparency = ((currentFocusTime / focusTime)-0.5f)*2f;
+            panelTransparency = moveCurve.Evaluate(panelTransparency);
+            panelsColour.a = 0.5f * panelTransparency;
+            panel.color = panelsColour;
+        } else {
+            dist -= Input.mouseScrollDelta.y;
+            dist = Mathf.Clamp(dist, minDist, maxDist);
+            SetDist();
+        }
         if (Input.GetMouseButtonDown(1)) {
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
@@ -86,23 +132,53 @@ public class LookAround : MonoBehaviour
             }
             float completed = moveCurve.Evaluate(floatingTime / floatTime);
             transform.position = Vector3.Lerp(lastPos, currentStar.position, 1.0f - completed);
-            cam.transform.LookAt(currentStar);
-            Quaternion future = cam.transform.rotation;
-            cam.transform.rotation = Quaternion.Lerp(future, lastRotation, completed);
+            camParent.transform.LookAt(currentStar);
+            Quaternion future = camParent.transform.rotation;
+            camParent.transform.rotation = Quaternion.Lerp(future, lastRotation, completed);
             cam.fieldOfView = fov * fovSlide.Evaluate(1.0f - completed);
             if (distBetween < 20f) {
                 float dampen = Mathf.Max(0f, (distBetween - 10f) / 10f);
                 cam.fieldOfView = Mathf.Lerp(fov, cam.fieldOfView, dampen);
             }
             if (floatingTime == 0f) {
-                cam.transform.LookAt(currentStar);
+                camParent.transform.LookAt(currentStar);
                 cam.fieldOfView = fov;
                 mb.enabled.value = false;
             }
         } else if (Input.GetMouseButton(1)) {
             // We're rotating
-            cam.transform.RotateAround(transform.position, cam.transform.right, Input.GetAxis("Mouse Y"));
-            cam.transform.RotateAround(transform.position, cam.transform.up, Input.GetAxis("Mouse X"));
+            camParent.transform.RotateAround(transform.position, camParent.transform.right, Input.GetAxis("Mouse Y"));
+            camParent.transform.RotateAround(transform.position, camParent.transform.up, Input.GetAxis("Mouse X"));
         }
+    }
+
+    private void FocusedUpdate() {
+        if (currentFocusTime > 0f) {
+            currentFocusTime -= Time.deltaTime;
+            currentFocusTime = Mathf.Clamp(currentFocusTime, 0f, focusTime);
+            float completion = moveCurve.Evaluate(currentFocusTime / focusTime);
+            cam.transform.localPosition = Vector3.Lerp(focusPos, unfocusPos, completion);
+            float panelTransparency = (0.5f - (currentFocusTime / focusTime)) * 2;
+            panelTransparency = moveCurve.Evaluate(panelTransparency);
+            panelsColour.a = 0.5f * panelTransparency;
+            panel.color = panelsColour;
+        }
+        if (Input.GetMouseButtonDown(1)) {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        if (Input.GetMouseButtonUp(1)) {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        if (Input.GetMouseButton(1)) {
+            // We're rotating
+            camParent.transform.RotateAround(transform.position, camParent.transform.right, Input.GetAxis("Mouse Y"));
+            camParent.transform.RotateAround(transform.position, camParent.transform.up, Input.GetAxis("Mouse X"));
+        }
+    }
+
+    private void SetDist() {
+        cam.transform.localPosition = new Vector3(0f,0f, -dist);
     }
 }
