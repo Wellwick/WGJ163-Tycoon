@@ -11,6 +11,9 @@ public class Universe : MonoBehaviour
     // We will multiply this number by a bunch and put more in the background
     public int starCountTouchable;
     public float backgroundStarMultiplier;
+    public float timeToProduce;
+
+    public float currentTimeToProduce;
 
     private GameObject[] stars;
     private List<GameObject> backgroundStars;
@@ -21,6 +24,7 @@ public class Universe : MonoBehaviour
 
     private Transform background;
     private LookAround lr;
+    private SystemInfo si;
     // Start is called before the first frame update
     void Start() {
         Random.InitState(seed);
@@ -45,6 +49,7 @@ public class Universe : MonoBehaviour
         }
         lr = FindObjectOfType<LookAround>();
         lr.GoToStar(stars[0]);
+        stars[0].GetComponent<Star>().SetAsStarter();
         
         for (int i = 0; i< 100; i++) {
             Star start = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
@@ -54,6 +59,7 @@ public class Universe : MonoBehaviour
             }
             SpawnPath(start, end);
         }
+        si = FindObjectOfType<SystemInfo>();
     }
 
     private void SpawnStar(int index) {
@@ -93,6 +99,13 @@ public class Universe : MonoBehaviour
                 }
             }
         }
-
+        currentTimeToProduce -= Time.deltaTime;
+        while (currentTimeToProduce < 0f) {
+            currentTimeToProduce += timeToProduce;
+            foreach (GameObject s in stars) {
+                s.GetComponent<Star>().AutoProduce();
+            }
+            si.UpdateOwned();
+        }
     }
 }

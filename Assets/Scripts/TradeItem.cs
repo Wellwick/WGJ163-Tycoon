@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public enum TradeItem {
     NONE,
@@ -19,4 +20,21 @@ class Trading {
         Color.yellow,
         Color.cyan
     };
+    
+    public static int GetTradingWorth(TradeItem ti) {
+        switch (ti) {
+            case TradeItem.FUEL:
+                return 4;
+            case TradeItem.PARTS:
+                return 2;
+            case TradeItem.LUXURY:
+                return 10;
+            case TradeItem.FOOD:
+                return 2;
+            case TradeItem.WORKERS:
+                return 0;
+            default:
+                throw new System.Exception("Do not expect to try trading " + ti.ToString());
+        }
+    }
 }

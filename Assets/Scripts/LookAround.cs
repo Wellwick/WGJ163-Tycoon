@@ -47,6 +47,7 @@ public class LookAround : MonoBehaviour
         focusSystem = false;
         currentFocusTime = 0f;
         focusPos = new Vector3(-2f, 0, -5f);
+        camParent.GetComponent<BoxCollider>().enabled = false;
     }
 
     public void Aim(Star star) {
@@ -90,8 +91,10 @@ public class LookAround : MonoBehaviour
             floatingTime = 0f;
             unfocusPos = cam.transform.localPosition;
             systemInfo.Show(currentStar.GetComponent<Star>(), focusTime);
+            camParent.GetComponent<BoxCollider>().enabled = true;
         } else {
             systemInfo.Hide(focusTime*0.5f);
+            camParent.GetComponent<BoxCollider>().enabled = false;
         }
     }
 

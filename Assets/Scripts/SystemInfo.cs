@@ -9,8 +9,14 @@ public class SystemInfo : MonoBehaviour
     public List<Text> texts;
     private Star star;
 
+    private Button productionButton, factoryButton;
+    private Slider productionSlider;
+
     private float drawTime, currentDrawTime;
     public bool show;
+
+    private float currentTimeToProduce;
+    private Universe universe;
 
     public void SetStar(Star s) {
         star = s;
@@ -22,6 +28,26 @@ public class SystemInfo : MonoBehaviour
     {
         images = new List<Image>();
         texts = new List<Text>();
+        AddSubTransforms(transform);
+        foreach (Transform t in transform) {
+            switch (t.name) {
+                case "ProduceButton":
+                    productionButton = t.GetComponent<Button>();
+                    productionButton.onClick.AddListener(StartProduction);
+                    break;
+                case "FactoryButton":
+                    factoryButton = t.GetComponent<Button>();
+                    factoryButton.onClick.AddListener(AddFactories);
+                    break;
+                case "ProduceSlider":
+                    productionSlider = t.GetComponent<Slider>();
+                    break;
+            }
+        }
+        universe = FindObjectOfType<Universe>();
+    }
+
+    private void AddSubTransforms(Transform transform) {
         foreach (Transform t in transform) {
             Image image = t.GetComponent<Image>();
             if (image) {
@@ -37,6 +63,7 @@ public class SystemInfo : MonoBehaviour
                 textColour.a = 0f;
                 text.color = textColour;
             }
+            AddSubTransforms(t);
         }
     }
 
@@ -45,6 +72,36 @@ public class SystemInfo : MonoBehaviour
         drawTime = time;
         currentDrawTime = time;
         show = true;
+        Text[] textArray = texts.ToArray();
+        textArray[2].text = s.GetTradeItem().ToString();
+        textArray[5].text = star.GetFactoryRequirement() + " Available";
+        textArray[8].text = "Build " + star.GetFactoryName();
+        UpdateOwned();
+    }
+
+    public void UpdateOwned() {
+        // We are never going to enter this when the star isn't set!
+        if (!star) {
+            return;
+        }
+        Text[] textArray = texts.ToArray();
+        if (star.IsAutoProduction()) {
+            textArray[4].text = star.GetResource(TradeItem.WORKERS).ToString() 
+                + " ✕ " + star.GetFactories().ToString() + " = "
+                + star.ProductionRate().ToString();
+        } else {
+            textArray[4].text = star.ProductionRate().ToString();
+        }
+        long buildableFactories = star.GetBuildableFactories();
+        textArray[6].text = buildableFactories.ToString();
+        productionButton.interactable = !star.IsAutoProduction() && 
+            star.ProductionRate() > 0 && currentTimeToProduce == 0;
+        factoryButton.interactable = buildableFactories > 0;
+        textArray[14].text = star.GetResource(TradeItem.WORKERS).ToString();
+        textArray[15].text = star.GetResource(TradeItem.PARTS).ToString();
+        textArray[16].text = star.GetResource(TradeItem.FUEL).ToString();
+        textArray[17].text = star.GetResource(TradeItem.FOOD).ToString();
+        textArray[18].text = star.GetResource(TradeItem.LUXURY).ToString();
     }
 
     public void Hide(float time) {
@@ -74,5 +131,28 @@ public class SystemInfo : MonoBehaviour
                 t.color = textColour;
             }
         }
+        if (star && star.IsAutoProduction()) {
+            currentTimeToProduce = universe.currentTimeToProduce;
+        }
+        if (currentTimeToProduce > 0f) {
+            currentTimeToProduce -= Time.deltaTime;
+            currentTimeToProduce = Mathf.Clamp(currentTimeToProduce, 0f, universe.timeToProduce);
+            float completion = 1.0f - (currentTimeToProduce / universe.timeToProduce);
+            productionSlider.value = completion;
+            if (completion == 1.0f && !star.IsAutoProduction()) {
+                star.RunProduction();
+                UpdateOwned();
+            }
+        }
+    }
+
+    private void AddFactories() {
+        star.AddFactories();
+        UpdateOwned();
+    }
+
+    private void StartProduction() {
+        currentTimeToProduce = universe.timeToProduce;
+        UpdateOwned();
     }
 }
