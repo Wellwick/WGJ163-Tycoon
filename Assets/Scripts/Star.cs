@@ -11,8 +11,12 @@ public class Star : MonoBehaviour
         return name;
     }
 
+    public TradeItem GetTradeItem() {
+        return tradeItem;
+    }
+
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         name = NameGenerator.StarName();
         Material m = GetComponent<MeshRenderer>().materials[0];
@@ -21,7 +25,7 @@ public class Star : MonoBehaviour
         m.SetColor("_EmissionColor", c);
         float scale = Random.Range(3f / 5f, 5f / 3f);
         transform.localScale = new Vector3(scale, scale, scale);
-        tradeItem = (TradeItem)Random.Range(1, 5);
+        tradeItem = (TradeItem)Random.Range(1, 6);
     }
 
     // Update is called once per frame

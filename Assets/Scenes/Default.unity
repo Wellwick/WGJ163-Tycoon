@@ -456,7 +456,7 @@ MonoBehaviour:
     type: 3}
   backgroundStar: {fileID: 8547144414942301163, guid: 99bee999d8c27b6499f9e417882ec31a,
     type: 3}
-  radius: 150
+  radius: 200
   starCountTouchable: 1500
   backgroundStarMultiplier: 10
   pathPrefab: {fileID: 7058514355004861101, guid: 244bcdfd2c809324ca4e9aa6fb33e4a9,

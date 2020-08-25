@@ -57,11 +57,7 @@ public class Universe : MonoBehaviour
     }
 
     private void SpawnStar(int index) {
-        Vector3 position = new Vector3(
-            Random.Range(-radius, radius), 
-            Random.Range(-radius, radius), 
-            Random.Range(-radius, radius)
-        );
+        Vector3 position = Random.insideUnitSphere * radius;
         GameObject star = Instantiate(starPrefab, position, new Quaternion());
         stars[index] = star;
     }
@@ -81,7 +77,7 @@ public class Universe : MonoBehaviour
 
     private void SpawnPath(Star start, Star end) {
         Path path = Instantiate(pathPrefab).GetComponent<Path>();
-        path.SetupPath(start, end, (TradeItem)Random.Range(1, 5));
+        path.SetupPath(start, end, start.GetTradeItem());
     }
 
     // Update is called once per frame
