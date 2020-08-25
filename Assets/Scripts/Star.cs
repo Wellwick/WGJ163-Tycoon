@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class Star : MonoBehaviour
 {
-
+    private string name;
     private TradeItem tradeItem;
+
+    public string GetName() {
+        return name;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        name = NameGenerator.StarName();
         Material m = GetComponent<MeshRenderer>().materials[0];
         Color c = new Color(Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f), Random.Range(0.5f, 1.0f));
         m.color = c;

@@ -25,8 +25,7 @@ public class LookAround : MonoBehaviour
     public GameObject pathPrefab;
     private Path aimPath = null;
 
-    public Image panel;
-    private Color panelsColour;
+    public SystemInfo systemInfo;
     public float focusTime;
     private float currentFocusTime;
     private bool focusSystem;
@@ -48,7 +47,6 @@ public class LookAround : MonoBehaviour
         focusSystem = false;
         currentFocusTime = 0f;
         focusPos = new Vector3(-2f, 0, -5f);
-        panelsColour = panel.color;
     }
 
     public void Aim(Star star) {
@@ -88,7 +86,12 @@ public class LookAround : MonoBehaviour
         focusSystem = !focusSystem;
         currentFocusTime = focusTime;
         if (focusSystem) {
+            transform.position = currentStar.position;
+            floatingTime = 0f;
             unfocusPos = cam.transform.localPosition;
+            systemInfo.Show(currentStar.GetComponent<Star>(), focusTime);
+        } else {
+            systemInfo.Hide(focusTime*0.5f);
         }
     }
 
@@ -107,10 +110,6 @@ public class LookAround : MonoBehaviour
             currentFocusTime = Mathf.Clamp(currentFocusTime, 0f, focusTime);
             float completion = moveCurve.Evaluate(currentFocusTime / focusTime);
             cam.transform.localPosition = Vector3.Lerp(unfocusPos, focusPos, completion);
-            float panelTransparency = ((currentFocusTime / focusTime)-0.5f)*2f;
-            panelTransparency = moveCurve.Evaluate(panelTransparency);
-            panelsColour.a = 0.5f * panelTransparency;
-            panel.color = panelsColour;
         } else {
             dist -= Input.mouseScrollDelta.y;
             dist = Mathf.Clamp(dist, minDist, maxDist);
@@ -158,10 +157,6 @@ public class LookAround : MonoBehaviour
             currentFocusTime = Mathf.Clamp(currentFocusTime, 0f, focusTime);
             float completion = moveCurve.Evaluate(currentFocusTime / focusTime);
             cam.transform.localPosition = Vector3.Lerp(focusPos, unfocusPos, completion);
-            float panelTransparency = (0.5f - (currentFocusTime / focusTime)) * 2;
-            panelTransparency = moveCurve.Evaluate(panelTransparency);
-            panelsColour.a = 0.5f * panelTransparency;
-            panel.color = panelsColour;
         }
         if (Input.GetMouseButtonDown(1)) {
             Cursor.lockState = CursorLockMode.Locked;
