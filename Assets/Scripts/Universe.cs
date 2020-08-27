@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Universe : MonoBehaviour
 {
@@ -25,6 +26,15 @@ public class Universe : MonoBehaviour
     private Transform background;
     private LookAround lr;
     private SystemInfo si;
+
+    private Tycoon tycoon;
+    private TradeItem shipping;
+
+    public Text credits;
+
+    private void Awake() {
+        tycoon = new Tycoon();
+    }
     // Start is called before the first frame update
     void Start() {
         Random.InitState(seed);
@@ -51,7 +61,7 @@ public class Universe : MonoBehaviour
         lr.GoToStar(stars[0]);
         stars[0].GetComponent<Star>().SetAsStarter();
         
-        for (int i = 0; i< 100; i++) {
+        for (int i = 0; i< 0; i++) {
             Star start = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
             Star end = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
             if (start == end) {
@@ -60,6 +70,8 @@ public class Universe : MonoBehaviour
             SpawnPath(start, end);
         }
         si = FindObjectOfType<SystemInfo>();
+        
+        shipping = TradeItem.NONE;
     }
 
     private void SpawnStar(int index) {
@@ -93,12 +105,19 @@ public class Universe : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 3000f)) {
             Star star = hit.transform.GetComponent<Star>();
             if (star) {
-                lr.Aim(star);
+                lr.Aim(star, shipping);
                 if (Input.GetMouseButtonDown(0)) {
-                    lr.GoToStar(star.gameObject);
+                    if (shipping == TradeItem.NONE) {
+                        lr.GoToStar(star.gameObject);
+                        FindObjectOfType<MiniInfo>().Hide();
+                    } else {
+                        // Let's ship!
+                        tycoon.GainMoney(si.ShipTo(star));
+                    }
                 }
             }
         }
+
         currentTimeToProduce -= Time.deltaTime;
         while (currentTimeToProduce < 0f) {
             currentTimeToProduce += timeToProduce;
@@ -107,5 +126,20 @@ public class Universe : MonoBehaviour
             }
             si.UpdateOwned();
         }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow)) {
+            lr.GoToStar(tycoon.NextStar(lr.currentStar.GetComponent<Star>()).gameObject);
+        } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
+            lr.GoToStar(tycoon.PreviousStar(lr.currentStar.GetComponent<Star>()).gameObject);
+        }
+        credits.text = tycoon.GetCredits().ToString();
+    }
+    
+    public void AddStarBase(Star s) {
+        tycoon.AddStarBase(s);
+    }
+
+    public void ChangeShipping(TradeItem ti) {
+        shipping = ti;
     }
 }

@@ -21,9 +21,9 @@ public class Star : MonoBehaviour
     }
 
     public void SetAsStarter() {
-        parts = 3;
-        factories = 3;
-        workers = 4;
+        factories = 1;
+        tradeItem = TradeItem.PARTS;
+        FindObjectOfType<Universe>().AddStarBase(this);
     }
 
     // Start is called before the first frame update
@@ -86,7 +86,15 @@ public class Star : MonoBehaviour
         }
     }
 
-    public int DeliverShipments(TradeItem ti, int amount) {
+    public long SendTo(Star s, long amount) {
+        if (amount > GetResource(tradeItem)) {
+            throw new System.Exception("Can't send more product than we own");
+        }
+        ConsumeResource(tradeItem, amount);
+        return s.DeliverShipments(tradeItem, amount);
+    }
+
+    public long DeliverShipments(TradeItem ti, long amount) {
         switch (ti) {
             case TradeItem.FOOD:
                 food += amount;
@@ -101,15 +109,16 @@ public class Star : MonoBehaviour
                 fuel += amount;
                 break;
             case TradeItem.LUXURY:
-                return PurchasePrice(ti, amount);
+                luxuries += amount;
+                break;
             default:
                 throw new System.Exception("Did not get expected shipment");
         }
         return PurchasePrice(ti, amount);
     }
 
-    public int PurchasePrice(TradeItem ti, int amount) {
-        return (int)purchasePower * amount;
+    public long PurchasePrice(TradeItem ti, long amount) {
+        return (long)purchasePower * amount;
     }
 
     public string GetFactoryRequirement() {
@@ -129,11 +138,24 @@ public class Star : MonoBehaviour
     }
 
     public long GetBuildableFactories() {
+        long currentFactories = factories;
+        long localResource = parts;
         if (tradeItem == TradeItem.WORKERS) {
-            return food;
-        } else {
-            return parts;
+            localResource = food;
         }
+        if (currentFactories == 0) { 
+            if (localResource > 0) {
+                currentFactories++;
+                localResource--;
+            } else {
+                return 0;
+            }
+        }
+        while (localResource >= currentFactories * factories) {
+            localResource -= currentFactories * factories;
+            currentFactories++;
+        }
+        return currentFactories - factories;
     }
 
     public long GetFactories() {
@@ -146,11 +168,31 @@ public class Star : MonoBehaviour
 
     public void AddFactories() {
         if (tradeItem == TradeItem.WORKERS) {
-            factories += food;
-            food = 0;
+            if (factories == 0) {
+                if (food > 0) {
+                    factories++;
+                    food--;
+                } else {
+                    return;
+                }
+            }
+            while (food >= factories * factories) {
+                food -= factories * factories;
+                factories++;
+            }
         } else {
-            factories += parts;
-            parts = 0;
+            if (factories == 0) {
+                if (parts > 0) {
+                    factories++;
+                    parts--;
+                } else {
+                    return;
+                }
+            }
+            while (parts >= factories * factories) {
+                parts -= factories * factories;
+                factories++;
+            }
         }
     }
 
@@ -176,5 +218,31 @@ public class Star : MonoBehaviour
             default:
                 throw new System.Exception("Did not try and get NONE");
         }
+    }
+
+    private void ConsumeResource(TradeItem ti, long amount) {
+        switch (ti) {
+            case TradeItem.FOOD:
+                food -= amount;
+                break;
+            case TradeItem.PARTS:
+                parts -= amount;
+                break;
+            case TradeItem.WORKERS:
+                workers -= amount;
+                break;
+            case TradeItem.FUEL:
+                fuel -= amount;
+                break;
+            case TradeItem.LUXURY:
+                luxuries -= amount;
+                break;
+            default:
+                throw new System.Exception("Did not try and get NONE");
+        }
+    }
+
+    public bool CanShip() {
+        return GetResource(tradeItem) > 0;
     }
 }

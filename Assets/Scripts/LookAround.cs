@@ -31,6 +31,8 @@ public class LookAround : MonoBehaviour
     private bool focusSystem;
     private Vector3 focusPos, unfocusPos;
 
+    public MiniInfo miniInfo;
+
     private void Start() {
         foreach (Transform t in transform) {
             if (t.name == "CamParent") {
@@ -50,7 +52,7 @@ public class LookAround : MonoBehaviour
         camParent.GetComponent<BoxCollider>().enabled = false;
     }
 
-    public void Aim(Star star) {
+    public void Aim(Star star, TradeItem ti) {
         // Don't aim at yourself, that would be silly
         if (star == currentStar.GetComponent<Star>() || floatingTime > 0f) {
             return;
@@ -61,7 +63,8 @@ public class LookAround : MonoBehaviour
         }
         if (!aimPath.IsDestination(star)) {
             aimPath.SetSize(0.7f);
-            aimPath.SetupPath(currentStar.GetComponent<Star>(), star, TradeItem.NONE);
+            aimPath.SetupPath(currentStar.GetComponent<Star>(), star, ti);
+            miniInfo.ShowStar(star);
         }
     }
 
@@ -77,6 +80,10 @@ public class LookAround : MonoBehaviour
         floatingTime = floatTime;
         distBetween = Vector3.Distance(lastPos, currentStar.position);
         mb.enabled.value = true;
+        ClearPath();
+    }
+
+    public void ClearPath() {
         if (aimPath != null) {
             Destroy(aimPath.gameObject);
             aimPath = null;

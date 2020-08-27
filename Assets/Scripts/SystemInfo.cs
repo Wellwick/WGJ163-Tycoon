@@ -9,8 +9,8 @@ public class SystemInfo : MonoBehaviour
     public List<Text> texts;
     private Star star;
 
-    private Button productionButton, factoryButton;
-    private Slider productionSlider;
+    private Button productionButton, factoryButton, shipButton;
+    private Slider productionSlider, shipSlider;
 
     private float drawTime, currentDrawTime;
     public bool show;
@@ -31,6 +31,9 @@ public class SystemInfo : MonoBehaviour
         AddSubTransforms(transform);
         foreach (Transform t in transform) {
             switch (t.name) {
+                case "ProduceSlider":
+                    productionSlider = t.GetComponent<Slider>();
+                    break;
                 case "ProduceButton":
                     productionButton = t.GetComponent<Button>();
                     productionButton.onClick.AddListener(StartProduction);
@@ -39,8 +42,13 @@ public class SystemInfo : MonoBehaviour
                     factoryButton = t.GetComponent<Button>();
                     factoryButton.onClick.AddListener(AddFactories);
                     break;
-                case "ProduceSlider":
-                    productionSlider = t.GetComponent<Slider>();
+                case "ShipSlider":
+                    shipSlider = t.GetComponent<Slider>();
+                    shipSlider.onValueChanged.AddListener(delegate { UpdateShipAmount(); });
+                    break;
+                case "ShipButton":
+                    shipButton = t.GetComponent<Button>();
+                    shipButton.onClick.AddListener(SetupShipment);
                     break;
             }
         }
@@ -76,6 +84,7 @@ public class SystemInfo : MonoBehaviour
         textArray[2].text = s.GetTradeItem().ToString();
         textArray[5].text = star.GetFactoryRequirement() + " Available";
         textArray[8].text = "Build " + star.GetFactoryName();
+        textArray[21].text = "Ship " + star.GetTradeItem().ToString();
         UpdateOwned();
     }
 
@@ -102,6 +111,15 @@ public class SystemInfo : MonoBehaviour
         textArray[16].text = star.GetResource(TradeItem.FUEL).ToString();
         textArray[17].text = star.GetResource(TradeItem.FOOD).ToString();
         textArray[18].text = star.GetResource(TradeItem.LUXURY).ToString();
+        shipButton.interactable = star.CanShip();
+        shipSlider.interactable = star.CanShip();
+        shipSlider.maxValue = star.GetResource(star.GetTradeItem());
+        UpdateShipAmount();
+    }
+
+    private void UpdateShipAmount() {
+        Text[] textArray = texts.ToArray();
+        textArray[20].text = shipSlider.value.ToString();
     }
 
     public void Hide(float time) {
@@ -148,11 +166,31 @@ public class SystemInfo : MonoBehaviour
 
     private void AddFactories() {
         star.AddFactories();
+        universe.AddStarBase(star);
         UpdateOwned();
     }
 
     private void StartProduction() {
         currentTimeToProduce = universe.timeToProduce;
         UpdateOwned();
+    }
+
+    private void SetupShipment() {
+        FindObjectOfType<LookAround>().ClearPath();
+        universe.ChangeShipping(star.GetTradeItem());
+    }
+
+    public long ShipTo(Star target) {
+        long value = 0;
+        if (star != target) {
+            value = star.SendTo(target, (long)shipSlider.value);
+            UpdateOwned();
+            Debug.Log("Tried to send to another star system");
+        } else {
+            Debug.Log("Can't send to your own star");
+        }
+        universe.ChangeShipping(TradeItem.NONE);
+        FindObjectOfType<LookAround>().ClearPath();
+        return value;
     }
 }
