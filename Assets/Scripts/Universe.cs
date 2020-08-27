@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class Universe : MonoBehaviour
 {
-    public int seed;
     public GameObject starPrefab;
     public GameObject backgroundStar;
     public float radius;
@@ -13,6 +12,7 @@ public class Universe : MonoBehaviour
     public int starCountTouchable;
     public float backgroundStarMultiplier;
     public float timeToProduce;
+    public int pathCount;
 
     public float currentTimeToProduce;
 
@@ -37,7 +37,7 @@ public class Universe : MonoBehaviour
     }
     // Start is called before the first frame update
     void Start() {
-        Random.InitState(seed);
+        Random.InitState(GameStarter.seed);
         foreach (Transform t in transform) {
             if (t.name == "Background") {
                 background = t;
@@ -57,11 +57,8 @@ public class Universe : MonoBehaviour
         for (int i = 0; i < starCountTouchable*backgroundStarMultiplier; i++) {
             SpawnBackgroundStar();
         }
-        lr = FindObjectOfType<LookAround>();
-        lr.GoToStar(stars[0]);
-        stars[0].GetComponent<Star>().SetAsStarter();
-        
-        for (int i = 0; i< 0; i++) {
+
+        for (int i = 0; i < pathCount; i++) {
             Star start = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
             Star end = stars[Random.Range(0, starCountTouchable - 1)].GetComponent<Star>();
             if (start == end) {
@@ -69,6 +66,13 @@ public class Universe : MonoBehaviour
             }
             SpawnPath(start, end);
         }
+
+        lr = FindObjectOfType<LookAround>();
+        if (!lr) {
+            return;
+        }
+        lr.GoToStar(stars[0]);
+        stars[0].GetComponent<Star>().SetAsStarter();
         si = FindObjectOfType<SystemInfo>();
         
         shipping = TradeItem.NONE;
@@ -100,6 +104,9 @@ public class Universe : MonoBehaviour
 
     // Update is called once per frame
     void Update() {
+        if (!lr) {
+            return;
+        }
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit, 3000f)) {
