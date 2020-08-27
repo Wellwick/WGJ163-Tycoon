@@ -84,5 +84,9 @@ public class MiniInfo : MonoBehaviour {
                 t.color = textColour;
             }
         }
+        Text[] textArray = texts.ToArray();
+        if (currentStar) {
+            textArray[4].text = currentStar.GetResource(currentStar.GetTradeItem()).ToString();
+        }
     }
 }

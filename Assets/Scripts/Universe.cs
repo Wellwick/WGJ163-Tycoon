@@ -127,10 +127,35 @@ public class Universe : MonoBehaviour
             si.UpdateOwned();
         }
 
+        Star currentStar = lr.currentStar.GetComponent<Star>();
         if (Input.GetKeyDown(KeyCode.RightArrow)) {
-            lr.GoToStar(tycoon.NextStar(lr.currentStar.GetComponent<Star>()).gameObject);
+            if (shipping == TradeItem.NONE) {
+                lr.GoToStar(tycoon.NextStar(currentStar).gameObject);
+            } else {
+                if (lr.CurrentDest()) {
+                    Star nextDest = tycoon.NextStar(lr.CurrentDest());
+                    if (nextDest == currentStar) {
+                        nextDest = tycoon.NextStar(nextDest);
+                    }
+                    lr.Aim(nextDest, shipping);
+                } else {
+                    lr.Aim(tycoon.NextStar(currentStar), shipping);
+                }
+            }
         } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-            lr.GoToStar(tycoon.PreviousStar(lr.currentStar.GetComponent<Star>()).gameObject);
+            if (shipping == TradeItem.NONE) {
+                lr.GoToStar(tycoon.PreviousStar(currentStar).gameObject);
+            } else {
+                if (lr.CurrentDest()) {
+                    Star prevDest = tycoon.PreviousStar(lr.CurrentDest());
+                    if (prevDest == currentStar) {
+                        prevDest = tycoon.PreviousStar(prevDest);
+                    }
+                    lr.Aim(prevDest, shipping);
+                } else {
+                    lr.Aim(tycoon.PreviousStar(currentStar), shipping);
+                }
+            }
         }
         credits.text = tycoon.GetCredits().ToString();
     }

@@ -186,4 +186,12 @@ public class LookAround : MonoBehaviour
     private void SetDist() {
         cam.transform.localPosition = new Vector3(0f,0f, -dist);
     }
+
+    public Star CurrentDest() {
+        if (aimPath != null) {
+            return aimPath.GetDestination();
+        } else {
+            return null;
+        }
+    }
 }

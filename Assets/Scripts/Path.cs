@@ -36,6 +36,10 @@ public class Path : MonoBehaviour {
         return star == end;
     }
 
+    public Star GetDestination() {
+        return end;
+    }
+
     private void Update() {
         if (start == null || end == null || start == end) {
             return;

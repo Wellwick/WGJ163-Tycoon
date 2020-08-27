@@ -151,8 +151,8 @@ public class Star : MonoBehaviour
                 return 0;
             }
         }
-        while (localResource >= currentFactories * factories) {
-            localResource -= currentFactories * factories;
+        while (localResource >= currentFactories * currentFactories) {
+            localResource -= currentFactories * currentFactories;
             currentFactories++;
         }
         return currentFactories - factories;

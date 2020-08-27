@@ -185,9 +185,6 @@ public class SystemInfo : MonoBehaviour
         if (star != target) {
             value = star.SendTo(target, (long)shipSlider.value);
             UpdateOwned();
-            Debug.Log("Tried to send to another star system");
-        } else {
-            Debug.Log("Can't send to your own star");
         }
         universe.ChangeShipping(TradeItem.NONE);
         FindObjectOfType<LookAround>().ClearPath();
