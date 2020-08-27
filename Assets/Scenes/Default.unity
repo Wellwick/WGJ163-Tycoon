@@ -1350,7 +1350,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66fe535ce19b9dc4380f9b602e31d69e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1234567890
   starPrefab: {fileID: 1953164559870225552, guid: 4771e0819f151b24c8182513a869c702,
     type: 3}
   backgroundStar: {fileID: 8547144414942301163, guid: 99bee999d8c27b6499f9e417882ec31a,
@@ -1359,6 +1358,7 @@ MonoBehaviour:
   starCountTouchable: 1500
   backgroundStarMultiplier: 10
   timeToProduce: 2
+  pathCount: 0
   currentTimeToProduce: 0
   pathPrefab: {fileID: 7058514355004861101, guid: 244bcdfd2c809324ca4e9aa6fb33e4a9,
     type: 3}
